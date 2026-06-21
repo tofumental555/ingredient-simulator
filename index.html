@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>食材厳選シミュレーション｜ポケモンスリープ攻略ツール</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Nunito:wght@600;700;800&display=swap');
+
+    :root {
+      --pks-night-deep: #161029;
+      --pks-night-panel: #251c47;
+      --pks-night-panel-2: #2f2459;
+      --pks-purple: #a98ee8;
+      --pks-purple-soft: #7d68b8;
+      --pks-star: #ffd166;
+      --pks-star-soft: #ffe9b0;
+      --pks-text: #ece6fa;
+      --pks-text-dim: #9b8fc2;
+      --pks-green: #7fd9a8;
+      --pks-border: rgba(169, 142, 232, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Nunito', 'Zen Maru Gothic', sans-serif;
+      color: var(--pks-text);
+      background:
+        radial-gradient(ellipse 600px 300px at 15% 0%, rgba(169,142,232,0.18), transparent 60%),
+        radial-gradient(ellipse 500px 400px at 90% 20%, rgba(255,209,102,0.08), transparent 55%),
+        linear-gradient(180deg, var(--pks-night-deep) 0%, #1d1638 100%);
+      padding: 28px 16px 60px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(2px 2px at 10% 15%, rgba(255,209,102,0.7), transparent),
+        radial-gradient(2px 2px at 80% 10%, rgba(255,209,102,0.5), transparent),
+        radial-gradient(1.5px 1.5px at 60% 30%, rgba(236,230,250,0.6), transparent),
+        radial-gradient(2px 2px at 30% 60%, rgba(169,142,232,0.5), transparent),
+        radial-gradient(1.5px 1.5px at 90% 70%, rgba(255,209,102,0.4), transparent),
+        radial-gradient(2px 2px at 50% 85%, rgba(236,230,250,0.4), transparent);
+      background-size: 100% 100%;
+      z-index: 0;
+    }
+
+    .pks-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .pks-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: var(--pks-star);
+      margin-bottom: 10px;
+    }
+
+    .pks-eyebrow::before {
+      content: "✦";
+      font-size: 13px;
+    }
+
+    h1 {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.45;
+      margin: 0 0 6px;
+      color: #fff;
+      letter-spacing: 0.01em;
+    }
+
+    .pks-sub {
+      font-size: 13px;
+      color: var(--pks-text-dim);
+      margin: 0 0 28px;
+      line-height: 1.7;
+    }
+
+    .pks-panel {
+      background: linear-gradient(165deg, var(--pks-night-panel) 0%, var(--pks-night-panel-2) 100%);
+      border: 1px solid var(--pks-border);
+      border-radius: 20px;
+      padding: 22px 20px;
+      box-shadow:
+        0 12px 32px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .field { margin-bottom: 18px; }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--pks-star-soft);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .pks-select-wrap { position: relative; }
+
+    .pks-select-wrap::after {
+      content: "▾";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--pks-purple);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--pks-text);
+      background: rgba(22, 16, 41, 0.55);
+      border: 1.5px solid var(--pks-border);
+      border-radius: 12px;
+      padding: 11px 14px;
+      appearance: none;
+    }
+
+    .pks-level-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button#calcButton {
+      width: 100%;
+      margin-top: 24px;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      color: #2a1f4d;
+      background: linear-gradient(135deg, var(--pks-star) 0%, #ffb84d 100%);
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 18px;
+      background: rgba(22, 16, 41, 0.6);
+      border: 1.5px dashed var(--pks-border);
+      border-radius: 16px;
+      padding: 18px;
+      font-size: 13.5px;
+      color: var(--pks-text-dim);
+      line-height: 1.8;
+      min-height: 24px;
+    }
+
+    #result.pks-has-result {
+      border-style: solid;
+      border-color: rgba(127, 217, 168, 0.4);
+      color: var(--pks-text);
+    }
+
+    .pks-footnote {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--pks-text-dim);
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="pks-wrap">
+
+    <div class="pks-eyebrow">POKEMON SLEEP TOOLS</div>
+    <h1>食材厳選シミュレーション</h1>
+    <p class="pks-sub">ポケモン・性格・サブスキル・食材配列を指定して、1日の期待値エナジーを計算します。</p>
+
+    <div class="pks-panel">
+
+      <!-- ポケモン -->
+      <div class="field">
+        <label for="pokemonSelect">🌙 ポケモン</label>
+        <div class="pks-select-wrap">
+          <select id="pokemonSelect"></select>
+        </div>
+      </div>
+
+      <!-- レベル -->
+      <div class="field">
+        <label for="levelInput">⭐ レベル</label>
+        <div class="pks-level-row">
+          <input id="levelInput" type="number" min="1" max="60" value="50">
+        </div>
+      </div>
+
+      <!-- 性格：上昇 -->
+      <div class="field">
+        <label for="natureUpSelect">📘 性格（上昇）</label>
+        <div class="pks-select-wrap">
+          <select id="natureUpSelect">
+            <option value="other" selected>その他（補正なし）</option>
+            <option value="speedUp">おてスピ↑</option>
+            <option value="foodUp">食材確率↑</option>
+            <option value="skillUp">スキル確率↑</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 性格：下降 -->
+      <div class="field">
+        <label for="natureDownSelect">📕 性格（下降）</label>
+        <div class="pks-select-wrap">
+          <select id="natureDownSelect">
+            <option value="other" selected>その他（補正なし）</option>
+            <option value="speedDown">おてスピ↓</option>
+            <option value="foodDown">食材確率↓</option>
+            <option value="skillDown">スキル確率↓</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- サブスキル -->
+      <div class="field">
+        <label>🔧 サブスキル（5枠）</label>
+        <div class="pks-select-wrap"><select id="sub10"></select></div>
+        <div class="pks-select-wrap"><select id="sub25"></select></div>
+        <div class="pks-select-wrap"><select id="sub50"></select></div>
+        <div class="pks-select-wrap"><select id="sub75"></select></div>
+        <div class="pks-select-wrap"><select id="sub100"></select></div>
+      </div>
+
+      <!-- 食材配列 -->
+      <div class="field">
+        <label for="patternSelect">🍳 食材配列</label>
+        <div class="pks-select-wrap">
+          <select id="patternSelect"></select>
+        </div>
+      </div>
+
+      <button id="calcButton">1日の期待値を計算</button>
+
+      <div id="result">
+        必要な項目を入力して計算ボタンを押してください。
+      </div>
+
+    </div>
+
+    <p class="pks-footnote">トフメンタルパパのポケモンスリープ攻略ツール</p>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

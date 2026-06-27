@@ -1180,4 +1180,6 @@ loadDB();
 }
 
 loadDB();
+window.addEventListener("DOMContentLoaded", loadDB);
+
 

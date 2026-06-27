@@ -842,11 +842,12 @@ function calcWeekly(entry) {
   const hpw       = WEEK_SECONDS / interval; // 週間行動回数
 
   // ── 食材発見率 ──
-  // 基礎値 + サブスキル加算（食材確率M: +36%、食材確率S: +18%）
+  // 正しい計算式: 基礎fr × (1 + 0.36×M + 0.18×S) × 性格補正
+  // ※サブスキル同士は加算、基礎frとは乗算（Wiki検証済み）
   const foodM = subs.filter(s => s === "食材確率M").length;
   const foodS = subs.filter(s => s === "食材確率S").length;
   let fr = (pokemon.ingredientFindRate ?? 0) / 100;
-  fr += 0.36 * foodM + 0.18 * foodS;
+  fr *= (1 + 0.36 * foodM + 0.18 * foodS);
   // 性格補正（乗算）
   if (natureUp   === "foodUp")   fr *= 1.2;
   if (natureDown === "foodDown") fr *= 0.8;

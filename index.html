@@ -430,7 +430,7 @@
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-format="autorelaxed"
-         data-ad-client="ca-pub-2480117696040692"
+         data-ad-client="ca-pub-2480117696040690"
          data-ad-slot="4742019348"></ins>
   </div>
   </div>
@@ -467,7 +467,7 @@
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-format="autorelaxed"
-         data-ad-client="ca-pub-2480117696040692"
+         data-ad-client="ca-pub-2480117696040690"
          data-ad-slot="4742019348"></ins>
   </div>
   </div>
@@ -483,7 +483,7 @@
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-format="autorelaxed"
-         data-ad-client="ca-pub-2480117696040692"
+         data-ad-client="ca-pub-2480117696040690"
          data-ad-slot="4742019348"></ins>
   </div>
   </div>
@@ -658,9 +658,6 @@ function initEvents() {
   document.getElementById("btnAddRecipe").addEventListener("click", addRecipeRow);
   document.getElementById("btnAddStock").addEventListener("click", addStockRow);
 
-  // 食材ポケモン初期4枠
-  for (let i = 0; i < 4; i++) addIngPokemonCard();
-
   // 初期料理行
   addRecipeRow();
 }
@@ -739,7 +736,9 @@ function buildPokemonSlots() {
       panel.appendChild(titleBar);
       panel.setAttribute("id", "ingPanelInner");
 
-      for (let i = 0; i < count; i++) {
+      // 常に4体から開始（ingInitCountがあればその値）
+      const initCount = (ingInitCount && ingInitCount > 0) ? ingInitCount : 4;
+      for (let i = 0; i < initCount; i++) {
         addIngPokemonCard(panel);
       }
     } else {
@@ -1449,15 +1448,17 @@ function renderResult(have, need, surplus, perPokemon, allOk, minRatio, surplusD
   `;
 }
 
-// AdSense初期化（insタグ分まとめてpush）
-try {
-  var ads = document.querySelectorAll('.adsbygoogle');
-  for (var i = 0; i < ads.length; i++) {
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  }
-} catch(e) {}
-
 loadDB();
+
+// AdSense: windowロード後にpush（scriptタグを使わず安全に実行）
+window.addEventListener('load', function() {
+  try {
+    var ads = document.querySelectorAll('ins.adsbygoogle');
+    for (var i = 0; i < ads.length; i++) {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    }
+  } catch(e) { console.log('AdSense error:', e); }
+});
 </script>
 </body>
 </html>
